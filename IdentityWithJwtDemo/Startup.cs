@@ -39,13 +39,21 @@ namespace IdentityWithJwtDemo
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-
+            
+            
+            
+            
+            
+            services.AddAuthorization(config => {
+                config.AddPolicy("ShouldContainRole",
+                    options => options.RequireClaim(UserRoles.Admin));
+            });
 
             //Adding Authentication
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; 
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
 
@@ -63,6 +71,19 @@ namespace IdentityWithJwtDemo
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
                     };
                 });
+
+            /**/
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("DeleteRolePolicy",
+                    policy=>policy.RequireRole(UserRoles.Admin)
+                    //policy1 => policy1.RequireClaim("Delete Role")
+                    );
+            });
+            /**/
+
+
+
             // Configure Identity
             services.Configure<IdentityOptions>(options =>
             {
