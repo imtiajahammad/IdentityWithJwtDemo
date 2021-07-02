@@ -5,9 +5,21 @@ using System.Threading.Tasks;
 
 namespace IdentityWithJwtDemo.Authentication
 {
-    public class Response
+    public class StatusResult<T>
     {
-        public string Status { get; set; }
+        public StatusResult()
+        {
+            Status = ResponseStatus.Failed;
+            Message = String.Empty;
+        }
+        public ResponseStatus Status { get;set; }
         public string Message { get; set; }
+        public T Result { get;set; }
+    }
+    public enum ResponseStatus{
+        Failed=0,
+        Success=1,
+        NotFound=2
+
     }
 }
