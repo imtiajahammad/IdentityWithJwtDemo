@@ -147,7 +147,8 @@ namespace IdentityWithJwtDemo.Controllers
                 return Ok(new
                 {
                     token = new JwtSecurityTokenHandler().WriteToken(token),
-                    expiration = token.ValidTo
+                    expiration = token.ValidTo,
+                    user=user.UserName
                 });
             }
             return Unauthorized();
@@ -159,7 +160,7 @@ namespace IdentityWithJwtDemo.Controllers
         {
             var userExists = await _userManager.FindByNameAsync(model.UserName);
             if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
+                return StatusCode(StatusCodes.Status500InternalServerError, new StatusResult<string> { Status = ResponseStatus.Failed, Message = "User already exists!" });
 
             ApplicationUser user = new ApplicationUser()
             {
@@ -169,7 +170,7 @@ namespace IdentityWithJwtDemo.Controllers
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+                return StatusCode(StatusCodes.Status500InternalServerError, new StatusResult<string> { Status = ResponseStatus.Failed, Message = "User creation failed! Please check user details and try again." });
 
             if (!await _roleManager.RoleExistsAsync(UserRoles.User))
                 await _roleManager.CreateAsync(new IdentityRole(UserRoles.User));
@@ -177,7 +178,7 @@ namespace IdentityWithJwtDemo.Controllers
             {
                 await _userManager.AddToRoleAsync(user, UserRoles.User);
             }
-            return Ok(new Response { Status = "Success", Message = "User created successfully!" });
+            return Ok(new StatusResult<string> { Status = ResponseStatus.Success, Message = "User created successfully!" });
         }
 
         [HttpPost]
@@ -186,7 +187,7 @@ namespace IdentityWithJwtDemo.Controllers
         {
             var userExists = await _userManager.FindByNameAsync(model.UserName);
             if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
+                return StatusCode(StatusCodes.Status500InternalServerError, new StatusResult<string> { Status = ResponseStatus.Failed, Message = "User already exists!" });
 
             ApplicationUser user = new ApplicationUser()
             {
@@ -196,7 +197,7 @@ namespace IdentityWithJwtDemo.Controllers
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+                return StatusCode(StatusCodes.Status500InternalServerError, new StatusResult<string> { Status = ResponseStatus.Failed, Message = "User creation failed! Please check user details and try again." });
 
             if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
                 await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
@@ -208,7 +209,7 @@ namespace IdentityWithJwtDemo.Controllers
                 await _userManager.AddToRoleAsync(user, UserRoles.Admin);
             }
 
-            return Ok(new Response { Status = "Success", Message = "User created successfully!" });
+            return Ok(new StatusResult<string> { Status = ResponseStatus.Success, Message = "User created successfully!" });
         }
     }
 }
