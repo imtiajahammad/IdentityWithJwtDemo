@@ -16,7 +16,7 @@ namespace IdentityWithJwtDemo.Controllers
     //[Route("[controller]")]
     [Route("api/[controller]")]
     //[Authorize(Roles = UserRoles.Admin)]
-    [Authorize(Policy = "DeleteRolePolicy")]
+    //[Authorize(Policy = "DeleteRolePolicy")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
