@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityWithJwtDemo.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,18 +11,20 @@ namespace IdentityWithJwtDemo.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    //[Authorize(Roles ="sadmin")]
     public class AdministrationController : ControllerBase
     {
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AdministrationController(RoleManager<IdentityRole> roleManager)
+        public AdministrationController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
             _roleManager = roleManager;
+            _userManager = userManager;
         }
-
         [Route("CreateRole")]
         [HttpPost]
-        public async Task<IActionResult> CreateRole(CreateRoleViewModel model)
+        public async Task<IActionResult> createRole(CreateRoleViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -64,19 +67,198 @@ namespace IdentityWithJwtDemo.Controllers
             }
             return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "Something went wrong" });
         }
+        [HttpGet]
+        [Route("GetRole")]
+        public async Task<IActionResult> getRole(string id)
+        {
+            StatusResult<CreateRoleViewModel> status = new StatusResult<CreateRoleViewModel>();
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null)
+            {
+                return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "Data not found" });
+            }
+            var model = new CreateRoleViewModel
+            {
+                RoleId = role.Id,
+                RoleName = role.Name
+            };
+            return Ok(new StatusResult<CreateRoleViewModel> { Status = ResponseStatus.Success,Message = "Data found",Result = model });
+        }
+        [HttpPut]
+        [Route("UpdateRole")]
+        public  async Task<IActionResult> updateRole(CreateRoleViewModel createRoleViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var role = await _roleManager.FindByIdAsync(createRoleViewModel.RoleId);
+                if (role == null)
+                {
+                    return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "Data not found" });
+                }
+                role.Name = createRoleViewModel.RoleName;
+                IdentityResult result=await _roleManager.UpdateAsync(role);
+                if (result.Succeeded)
+                {
+                    return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Role update failed" });
+                }
+                var errors = "";
+                foreach (var a in result.Errors)
+                {
+                    errors += "|" + a.Description.ToString();
+                }
+                return Ok(new StatusResult<string> { Status = ResponseStatus.Failed, Message = errors.ToString(), Result = String.Empty });
+            }
+            return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
+        }
+        [HttpDelete]
+        [Route("DeleteRole")]
+        public async Task<IActionResult> deleteRole(CreateRoleViewModel createRoleViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var role = await _roleManager.FindByIdAsync(createRoleViewModel.RoleId);
+                if (role == null)
+                {
+                    return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "Data not found" });
+                }
+                var users=_userManager.GetUsersInRoleAsync(createRoleViewModel.RoleName);
+                if (users != null)
+                {
+                    return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Role delete failed" });
+                }
+                var result = await _roleManager.DeleteAsync(role);
+                if (result.Succeeded)
+                {
+                    return Ok(new StatusResult<string> { Status = ResponseStatus.Success, Message = "Role deleted", Result = String.Empty });
+                }
+                var errors = "";
+                foreach (var a in result.Errors)
+                {
+                    errors += "|" + a.Description.ToString();
+                }
+                return Ok(new StatusResult<string> { Status = ResponseStatus.Failed, Message = errors.ToString(), Result = String.Empty });
+            }
+            return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
+        }
+        [Route("AddUserToRole")]
+        [HttpPost]
+        public async Task<IActionResult> addUserToRole(string userId,string roleId)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "User not found" });
+                }
+                var role = await _roleManager.FindByIdAsync(roleId);
+                if (role == null)
+                {
+                    return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "Role not found" });
+                }
+                var result = await _userManager.AddToRoleAsync(user, role.Name);
+                if (result.Succeeded)
+                {
+                    return Ok(new StatusResult<string> { Status = ResponseStatus.Success, Message = "Role added to user", Result = String.Empty });
+                }
+                var errors = "";
+                foreach (var a in result.Errors)
+                {
+                    errors += "|" + a.Description.ToString();
+                }
+                return Ok(new StatusResult<string> { Status = ResponseStatus.Failed, Message = errors.ToString(), Result = String.Empty });
+            }
+            return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
+        }
+
+        [HttpPost]
+        [Route("RemoveRoleFromUser")]
+        public async Task<IActionResult> RemoveRoleFromUser(string roleId,string userId)
+        {
+            if (ModelState.IsValid)
+            {
+                var role = await _roleManager.FindByIdAsync(roleId);
+                ApplicationUser user;
+                if (role != null)
+                {
+                    user = await _userManager.FindByIdAsync(userId);
+                    if (user == null)
+                    {
+                        return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "user not found" });
+                    }
+                }
+                else
+                {
+                    return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "role not found" });
+                }
+                var result = _userManager.RemoveFromRoleAsync(user, roleId);
+                if (result.Result.Succeeded)
+                {
+                    return NotFound(new StatusResult<string> { Status = ResponseStatus.Success, Message = "Role removed from user" });
+                }
+                var errors = "";
+                foreach (var a in result.Result.Errors)
+                {
+                    errors += "|" + a.Description.ToString();
+                }
+                return Ok(new StatusResult<string> { Status = ResponseStatus.Failed, Message = errors.ToString(), Result = String.Empty });
+            }
+            return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
+        }
+
+
+        [HttpGet]
+        [Route("GetUsersByRole")]
+        public async Task<IActionResult> GetUsersByRole(string roleId)
+        {
+            if (ModelState.IsValid)
+            {
+                var role = await _roleManager.FindByIdAsync(roleId);
+                if (role == null)
+                {
+                    return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "role not found" });
+                }
+                var users = await _userManager.GetUsersInRoleAsync(roleId);
+                if (users == null)
+                {
+                    return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "user not found" });
+                }
+                return Ok(new StatusResult<List<ApplicationUser>>() { Status = ResponseStatus.Failed, Message = "users fetched", Result =(List<ApplicationUser>)users });
+
+                
+            }
+            return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
+        }
+
+
+
+        [HttpGet]
+        [Route("GetRolesByUser")]
+        public async Task<IActionResult> GetRolesByUser(string userId)
+        {
+            if (ModelState.IsValid)
+            {
+                var user= await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "user not found" });
+                }
+                var roles =await _userManager.GetRolesAsync(user);
+                if(roles == null)
+                {
+                    return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "roles not found" });
+                }
+            }
+            return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
+        }
+
+
     }
-
-
-
-    
-
-
-
-
     public class CreateRoleViewModel
     {
         public string RoleId { get; set; }
         [System.ComponentModel.DataAnnotations.Required]
         public string RoleName { get; set; }
     }
+    
 }
