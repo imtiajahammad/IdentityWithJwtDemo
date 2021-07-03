@@ -76,15 +76,22 @@ namespace IdentityWithJwtDemo
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("DeleteRolePolicy",
-                    policy => policy.RequireRole(UserRoles.Admin)
+                    policy => policy.RequireRole(UserRoles.Admin) 
+                    
                     //policy1 => policy1.RequireClaim("Delete Role")
                     );
                 options.AddPolicy("CreateRolePolicy",
                    policy => policy.RequireClaim("CreateRole")
                    //policy1 => policy1.RequireClaim("Delete Role")
                    );
+                options.AddPolicy("DeleteRoleClaim",
+                    policy => policy.RequireClaim("DeleteRoleOnlyClaim") //& policy.RequireRole(UserRoles.Admin)
+                    );
+
             });
             /**/
+
+            
 
 
 
