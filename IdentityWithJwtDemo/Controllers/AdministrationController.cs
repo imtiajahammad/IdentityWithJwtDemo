@@ -11,12 +11,11 @@ namespace IdentityWithJwtDemo.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    //[Authorize(Roles ="sadmin")]
+    [Authorize(Roles ="sadmin,hadmin")]
     public class AdministrationController : ControllerBase
     {
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
-
         public AdministrationController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
             _roleManager = roleManager;
@@ -112,6 +111,7 @@ namespace IdentityWithJwtDemo.Controllers
         }
         [HttpDelete]
         [Route("DeleteRole")]
+        [Authorize(Policy = "DeleteRoleClaim")]
         public async Task<IActionResult> deleteRole(CreateRoleViewModel createRoleViewModel)
         {
             if (ModelState.IsValid)
@@ -170,7 +170,6 @@ namespace IdentityWithJwtDemo.Controllers
             }
             return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
         }
-
         [HttpPost]
         [Route("RemoveRoleFromUser")]
         public async Task<IActionResult> RemoveRoleFromUser(string roleId,string userId)
@@ -205,8 +204,6 @@ namespace IdentityWithJwtDemo.Controllers
             }
             return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
         }
-
-
         [HttpGet]
         [Route("GetUsersByRole")]
         public async Task<IActionResult> GetUsersByRole(string roleId)
@@ -229,9 +226,6 @@ namespace IdentityWithJwtDemo.Controllers
             }
             return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
         }
-
-
-
         [HttpGet]
         [Route("GetRolesByUser")]
         public async Task<IActionResult> GetRolesByUser(string userId)
@@ -251,8 +245,91 @@ namespace IdentityWithJwtDemo.Controllers
             }
             return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
         }
+        [HttpPost]
+        [Route("addClaimToRole")]
+        public async Task<IActionResult> addClaimToRole(string claimName,string roleId)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId);
+            if (role == null)
+            {
+                return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "role not found" });
+            }
+            var claims= _roleManager.GetClaimsAsync(role);
+            if(claims.Result.Contains(new System.Security.Claims.Claim(claimName, claimName)))
+            {
+                return Ok(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "claim already exists" });
+            }
+            var result = await _roleManager.AddClaimAsync(role , new System.Security.Claims.Claim(claimName, claimName));
+            if (result.Succeeded)
+            {
+                return Ok(new StatusResult<string> { Status = ResponseStatus.Success, Message = "claim added to role" });
+            }
+            return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
+        }
+        [HttpPost]
+        [Route("removeClaimToRole")]
+        public async Task<IActionResult> removeClaimToRole(string claimName, string roleId)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId);
+            if (role == null)
+            {
+                return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "role not found" });
+            }
+            var claims = _roleManager.GetClaimsAsync(role);
+            if (!claims.Result.Contains(new System.Security.Claims.Claim(claimName, claimName)))
+            {
+                return Ok(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "claim does not exist on role" });
+            }
+            var result = await _roleManager.RemoveClaimAsync(role, new System.Security.Claims.Claim(claimName, claimName));
+            if (result.Succeeded)
+            {
+                return Ok(new StatusResult<string> { Status = ResponseStatus.Success, Message = "claim removed from role" });
+            }
+            return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
+        }
 
-
+        [HttpPost]
+        [Route("addClaimToRole")]
+        public async Task<IActionResult> addClaimToUser(string claimName, string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "user not found" });
+            }
+            var claims = _userManager.GetClaimsAsync(user);
+            if (claims.Result.Contains(new System.Security.Claims.Claim(claimName, claimName)))
+            {
+                return Ok(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "claim already exists" });
+            }
+            var result = await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim(claimName, claimName));
+            if (result.Succeeded)
+            {
+                return Ok(new StatusResult<string> { Status = ResponseStatus.Success, Message = "claim added to user" });
+            }
+            return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
+        }
+        [HttpPost]
+        [Route("removeClaimFromUser")]
+        public async Task<IActionResult> removeClaimFromUser(string claimName, string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "user not found" });
+            }
+            var claims = _userManager.GetClaimsAsync(user);
+            if (!claims.Result.Contains(new System.Security.Claims.Claim(claimName, claimName)))
+            {
+                return Ok(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "claim does not exist on user" });
+            }
+            var result = await _userManager.RemoveClaimAsync(user, new System.Security.Claims.Claim(claimName, claimName));
+            if (result.Succeeded)
+            {
+                return Ok(new StatusResult<string> { Status = ResponseStatus.Success, Message = "claim removed to user" });
+            }
+            return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
+        }
     }
     public class CreateRoleViewModel
     {
