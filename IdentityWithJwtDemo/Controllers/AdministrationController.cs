@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityWithJwtDemo.Authentication;
+using IdentityWithJwtDemo.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -287,7 +288,6 @@ namespace IdentityWithJwtDemo.Controllers
             }
             return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
         }
-
         [HttpPost]
         [Route("addClaimToRole")]
         public async Task<IActionResult> addClaimToUser(string claimName, string userId)
@@ -330,12 +330,6 @@ namespace IdentityWithJwtDemo.Controllers
             }
             return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Something went wrong" });
         }
-    }
-    public class CreateRoleViewModel
-    {
-        public string RoleId { get; set; }
-        [System.ComponentModel.DataAnnotations.Required]
-        public string RoleName { get; set; }
     }
     
 }

@@ -1,4 +1,5 @@
 ﻿using IdentityWithJwtDemo.Authentication;
+using IdentityWithJwtDemo.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -27,45 +28,12 @@ namespace IdentityWithJwtDemo.Controllers
             this._roleManager = roleManager;
             this._configuration = configuration;
         }
-        [HttpPost]
-        [Route("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
-        {
-            var user = await _userManager.FindByNameAsync(model.UserName);
-            if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
-            {
-                var userRoles = await _userManager.GetRolesAsync(user);
-                var authClaims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name,user.UserName),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                };
-                foreach (var userRole in userRoles)
-                {
-                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-                }
-                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
-                var token = new JwtSecurityToken(
-                    issuer: _configuration["JWT:ValidIssuer"],
-                    audience: _configuration["JWT:ValidAudience"],
-                    expires: DateTime.Now.AddHours(3),
-                    claims: authClaims,
-                    signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-                    );
-                return Ok(new
-                {
-                    token = new JwtSecurityTokenHandler().WriteToken(token),
-                    expiration = token.ValidTo,
-                    user=user.UserName,
-                    claims=authClaims
-                });
-            }
-            return Unauthorized();
-        }
 
+
+        #region doneList
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
             var userExists = await _userManager.FindByNameAsync(model.UserName);
             if (userExists != null)
@@ -90,39 +58,6 @@ namespace IdentityWithJwtDemo.Controllers
             return Ok(new StatusResult<string> { Status = ResponseStatus.Success, Message = "User created successfully!" });
         }
 
-        [HttpPost]
-        [Route("register-admin")]
-        [System.Web.Http.Authorize(Roles = "sadmin")]
-        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
-        {
-            var userExists = await _userManager.FindByNameAsync(model.UserName);
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new StatusResult<string> { Status = ResponseStatus.Failed, Message = "User already exists!" });
-
-            ApplicationUser user = new ApplicationUser()
-            {
-                Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.UserName
-            };
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new StatusResult<string> { Status = ResponseStatus.Failed, Message = "User creation failed! Please check user details and try again." });
-
-            if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-            if (!await _roleManager.RoleExistsAsync(UserRoles.User))
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.User));
-
-            if (await _roleManager.RoleExistsAsync(UserRoles.Admin))
-            {
-                await _userManager.AddToRoleAsync(user, UserRoles.Admin);
-            }
-
-            return Ok(new StatusResult<string> { Status = ResponseStatus.Success, Message = "User created successfully!" });
-        }
-
-
         [HttpDelete]
         [Route("deleteUser")]
         [System.Web.Http.Authorize(Roles = "hadmin")]
@@ -145,7 +80,6 @@ namespace IdentityWithJwtDemo.Controllers
             }
             return Ok(new StatusResult<string> { Status = ResponseStatus.Failed, Message = errors.ToString(), Result = String.Empty });
         }
-
 
         [HttpGet]
         [Route("getUser")]
@@ -185,6 +119,78 @@ namespace IdentityWithJwtDemo.Controllers
             return Ok(new StatusResult<ApplicationUser> { Status = ResponseStatus.Failed, Message = "something went wrong" });
         }
 
+
+        
+        [HttpPost]
+        [Route("login")]
+        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
+        {
+            var user = await _userManager.FindByNameAsync(model.UserName);
+            if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+            {
+                var userRoles = await _userManager.GetRolesAsync(user);
+                var authClaims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name,user.UserName),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                };
+                foreach (var userRole in userRoles)
+                {
+                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                }
+                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+                var token = new JwtSecurityToken(
+                    issuer: _configuration["JWT:ValidIssuer"],
+                    audience: _configuration["JWT:ValidAudience"],
+                    expires: DateTime.Now.AddHours(3),
+                    claims: authClaims,
+                    signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+                    );
+                return Ok(new
+                {
+                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    expiration = token.ValidTo,
+                    user=user.UserName,
+                    claims=authClaims
+                });
+            }
+            return Unauthorized();
+        }
+
+        
+
+        [HttpPost]
+        [Route("register-admin")]
+        [System.Web.Http.Authorize(Roles = "sadmin")]
+        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterViewModel model)
+        {
+            var userExists = await _userManager.FindByNameAsync(model.UserName);
+            if (userExists != null)
+                return StatusCode(StatusCodes.Status500InternalServerError, new StatusResult<string> { Status = ResponseStatus.Failed, Message = "User already exists!" });
+
+            ApplicationUser user = new ApplicationUser()
+            {
+                Email = model.Email,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                UserName = model.UserName
+            };
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+                return StatusCode(StatusCodes.Status500InternalServerError, new StatusResult<string> { Status = ResponseStatus.Failed, Message = "User creation failed! Please check user details and try again." });
+
+            if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
+                await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+            if (!await _roleManager.RoleExistsAsync(UserRoles.User))
+                await _roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+
+            if (await _roleManager.RoleExistsAsync(UserRoles.Admin))
+            {
+                await _userManager.AddToRoleAsync(user, UserRoles.Admin);
+            }
+
+            return Ok(new StatusResult<string> { Status = ResponseStatus.Success, Message = "User created successfully!" });
+        }
+        #endregion doneList
         [HttpPost]
         [Route("changePassword")]
         public async Task<IActionResult> changePassword(string orginalPassword, string newPassword)
@@ -209,15 +215,6 @@ namespace IdentityWithJwtDemo.Controllers
                 return Ok(new StatusResult<string> { Status = ResponseStatus.Failed, Message = errors.ToString()});
             }
             return Ok(new StatusResult<ApplicationUser> { Status = ResponseStatus.Failed, Message = "something went wrong" });
-        }
-
-        
-    }
-    public class EditUserViewModel
-    {
-        public string id { get; set; }
-        public string name { get; set; }
-        public string email { get; set; }
-        public string phoneNumber { get; set; }
+        }        
     }
 }
