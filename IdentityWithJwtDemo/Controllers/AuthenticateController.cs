@@ -28,8 +28,6 @@ namespace IdentityWithJwtDemo.Controllers
             this._roleManager = roleManager;
             this._configuration = configuration;
         }
-
-
         #region doneList
         [HttpPost]
         [Route("register")]
@@ -57,7 +55,6 @@ namespace IdentityWithJwtDemo.Controllers
             }
             return Ok(new StatusResult<string> { Status = ResponseStatus.Success, Message = "User created successfully!" });
         }
-
         [HttpDelete]
         [Route("deleteUser")]
         [System.Web.Http.Authorize(Roles = "hadmin")]
@@ -80,7 +77,6 @@ namespace IdentityWithJwtDemo.Controllers
             }
             return Ok(new StatusResult<string> { Status = ResponseStatus.Failed, Message = errors.ToString(), Result = String.Empty });
         }
-
         [HttpGet]
         [Route("getUser")]
         public async Task<IActionResult> getUser(string id)
@@ -118,9 +114,6 @@ namespace IdentityWithJwtDemo.Controllers
             }
             return Ok(new StatusResult<ApplicationUser> { Status = ResponseStatus.Failed, Message = "something went wrong" });
         }
-
-
-        
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginViewModel model)
@@ -156,9 +149,6 @@ namespace IdentityWithJwtDemo.Controllers
             }
             return Unauthorized();
         }
-
-        
-
         [HttpPost]
         [Route("register-admin")]
         [System.Web.Http.Authorize(Roles = "sadmin")]

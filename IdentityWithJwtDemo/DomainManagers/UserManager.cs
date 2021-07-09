@@ -16,17 +16,15 @@ namespace IdentityWithJwtDemo.DomainManagers
     public class UserManager
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        /*private readonly RoleManager<IdentityRole> _roleManager;*/
         private readonly IConfiguration _configuration;
-        public UserManager(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public UserManager(UserManager<ApplicationUser> userManager/*, RoleManager<IdentityRole> roleManager*/, IConfiguration configuration)
         {
             this._userManager = userManager;
-            this._roleManager = roleManager;
+            /*this._roleManager = roleManager;*/
             this._configuration = configuration;
         }
-
-
-        public async Task<StatusResult<string>> Register([System.Web.Http.FromBody] RegisterViewModel model)
+        /*public async Task<StatusResult<string>> Register([System.Web.Http.FromBody] RegisterViewModel model)
         {
             StatusResult<string> status = new StatusResult<string>();
             var userExists = await _userManager.FindByNameAsync(model.UserName);
@@ -52,9 +50,7 @@ namespace IdentityWithJwtDemo.DomainManagers
                 await _userManager.AddToRoleAsync(user, UserRoles.User);
             }
             return new StatusResult<string> { Status = ResponseStatus.Success, Message = "User created successfully!" };
-        }
-
-
+        }*/
         public async Task<StatusResult<string>> deleteUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -74,8 +70,6 @@ namespace IdentityWithJwtDemo.DomainManagers
             }
             return new StatusResult<string> { Status = ResponseStatus.Failed, Message = errors.ToString(), Result = String.Empty };
         }
-
-
         public async Task<StatusResult<ApplicationUser>> getUser(string id)
         {
                 var user = await _userManager.FindByIdAsync(id);
@@ -85,7 +79,6 @@ namespace IdentityWithJwtDemo.DomainManagers
                 }
                 return new StatusResult<ApplicationUser> { Status = ResponseStatus.Success, Message = "User found", Result = user };
         }
-
         public async Task<StatusResult<ApplicationUser>> updateUser(EditUserViewModel editUserViewModel)
         {
                 var user = await _userManager.FindByIdAsync(editUserViewModel.id);
@@ -103,7 +96,64 @@ namespace IdentityWithJwtDemo.DomainManagers
                 }
             return new StatusResult<ApplicationUser> { Status = ResponseStatus.Failed, Message = "something went wrong" };
         }
+        public async Task<ApplicationUser> getUserById(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return null;
+            }
+            return user;
+        }
+        public async Task<ApplicationUser> getUserByUserName(string userName)
+        {
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user == null)
+            {
+                return null;
+            }
+            return user;
+        }
 
+
+        #region roles
+        public async Task<IEnumerable<ApplicationUser>> GetUsersByRole(IdentityRole identityRole)
+        {
+            return await _userManager.GetUsersInRoleAsync(identityRole.Name);
+        }
+        public async Task<IdentityResult> GetUsersByRole(ApplicationUser applicationUser, IdentityRole identityRole)
+        {
+            return await _userManager.AddToRoleAsync(applicationUser, identityRole.Name);
+        }
+        public async Task<IdentityResult> RemoveUserFromRoleId(ApplicationUser applicationUser, string roleId)
+        {
+            return await _userManager.RemoveFromRoleAsync(applicationUser, roleId);
+        }
+        public async Task<IEnumerable<string>> GetRoleNamesByUser(ApplicationUser applicationUser)
+        {
+            return await _userManager.GetRolesAsync(applicationUser);
+        }
+        #endregion roles
+
+
+        #region claims
+        public async Task<IEnumerable<System.Security.Claims.Claim>> GetClaimsByUser(ApplicationUser applicationUser)
+        {
+            return await _userManager.GetClaimsAsync(applicationUser);
+        }
+        public async Task<IdentityResult> AddClaimToUser(ApplicationUser applicationUser, System.Security.Claims.Claim  claim)
+        {
+            return await _userManager.AddClaimAsync(applicationUser, claim);
+        }
+        public async Task<IdentityResult> RemoveClaimFromUser(ApplicationUser applicationUser, System.Security.Claims.Claim claim)
+        {
+            return await _userManager.RemoveClaimAsync(applicationUser, claim);
+        }
+        public async Task<IdentityResult> RemoveUserFromRoleId(ApplicationUser applicationUser, string oldPassword, string newPassword)
+        {
+            return await _userManager.ChangePasswordAsync(applicationUser, oldPassword, newPassword);
+        }
+        #endregion claims
 
     }
 }

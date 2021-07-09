@@ -122,7 +122,7 @@ namespace IdentityWithJwtDemo.Controllers
                 {
                     return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "Data not found" });
                 }
-                var users=_userManager.GetUsersInRoleAsync(createRoleViewModel.RoleName);
+                var users=await _userManager.GetUsersInRoleAsync(createRoleViewModel.RoleName);
                 if (users != null)
                 {
                     return BadRequest(new StatusResult<string>() { Status = ResponseStatus.Failed, Message = "Role delete failed" });
@@ -191,13 +191,13 @@ namespace IdentityWithJwtDemo.Controllers
                 {
                     return NotFound(new StatusResult<string> { Status = ResponseStatus.NotFound, Message = "role not found" });
                 }
-                var result = _userManager.RemoveFromRoleAsync(user, roleId);
-                if (result.Result.Succeeded)
+                var result =await  _userManager.RemoveFromRoleAsync(user, roleId);
+                if (result.Succeeded)
                 {
                     return NotFound(new StatusResult<string> { Status = ResponseStatus.Success, Message = "Role removed from user" });
                 }
                 var errors = "";
-                foreach (var a in result.Result.Errors)
+                foreach (var a in result.Errors)
                 {
                     errors += "|" + a.Description.ToString();
                 }

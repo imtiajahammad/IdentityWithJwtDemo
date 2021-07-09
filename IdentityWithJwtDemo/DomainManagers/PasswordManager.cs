@@ -21,24 +21,10 @@ namespace IdentityWithJwtDemo.DomainManagers
         }
 
 
-        public async Task<StatusResult<ApplicationUser>> changePassword(ApplicationUser userAlias,string orginalPassword, string newPassword)
+        public async Task<IdentityResult> changePassword(ApplicationUser userAlias,string orginalPassword, string newPassword)
         {
-                var user = await _userManager.FindByNameAsync(userAlias.UserName);
-                if (user == null)
-                {
-                    return new StatusResult<ApplicationUser> { Status = ResponseStatus.NotFound, Message = "user not found" };
-                }
-                var result = await _userManager.ChangePasswordAsync(user, orginalPassword, newPassword);
-                if (result.Succeeded)
-                {
-                    return new StatusResult<ApplicationUser> { Status = ResponseStatus.Success, Message = "password updated" };
-                }
-                var errors = "";
-                foreach (var a in result.Errors)
-                {
-                    errors += "|" + a.Description.ToString();
-                }
-                return new StatusResult<ApplicationUser> { Status = ResponseStatus.Failed, Message = errors.ToString() };
+                var result = await _userManager.ChangePasswordAsync(userAlias, orginalPassword, newPassword);
+                return result;
         }
     }
 }
