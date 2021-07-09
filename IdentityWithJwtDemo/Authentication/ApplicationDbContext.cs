@@ -16,6 +16,12 @@ namespace IdentityWithJwtDemo.Authentication
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            /*to make cascate on delete off, do a migration after the code*/
+            foreach(var foreignKey in builder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            {
+                foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
+            }
+            /*to make cascate on delete off, do a migration after the code*/
         }
     }
 }
