@@ -1,31 +1,29 @@
 ﻿using IdentityWithJwtDemo.Authentication;
+using IdentityWithJwtDemo.DomainRepositories;
+using IdentityWithJwtDemo.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace IdentityWithJwtDemo.DomainManagers
+namespace IdentityWithJwtDemo.Implementations
 {
-    public class RoleManager
+    public class RoleRepository : GenericRepository<IdentityRole>, IRoleRepository
     {
-        /*private readonly UserManager<ApplicationUser> _userManager;*/
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IConfiguration _configuration;
-        public RoleManager(/*UserManager<ApplicationUser> userManager,*/ RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public RoleRepository(ApplicationDbContext context, RoleManager<IdentityRole> roleManager) : base(context)
         {
-            /*this._userManager = userManager;*/
             this._roleManager = roleManager;
-            this._configuration = configuration;
         }
-        public async Task<bool> RoleExistsAsync(String roleName)
+        public async Task<bool> RoleExistsAsync(string roleName)
         {
             return await _roleManager.RoleExistsAsync(roleName);
         }
         public async Task<IdentityResult> CreateRole(ApplicationUser user, IdentityRole identityRole)
         {
-            return  await _roleManager.CreateAsync(identityRole);
+            return await _roleManager.CreateAsync(identityRole);
         }
         public IEnumerable<IdentityRole> GetRoles()
         {
@@ -43,7 +41,7 @@ namespace IdentityWithJwtDemo.DomainManagers
         {
             return await _roleManager.DeleteAsync(identityRole);
         }
-        public async Task<IEnumerable<System.Security.Claims.Claim>> GetClaimsByRole(IdentityRole identityRole)
+        public async Task<IEnumerable<Claim>> GetClaimsByRole(IdentityRole identityRole)
         {
             return await _roleManager.GetClaimsAsync(identityRole);
         }
@@ -51,10 +49,29 @@ namespace IdentityWithJwtDemo.DomainManagers
         {
             return await _roleManager.AddClaimAsync(role, claim);
         }
-        public async Task<IdentityResult> RemoveClaimFromRole(System.Security.Claims.Claim claim,IdentityRole identityRole)
+        public async Task<IdentityResult> RemoveClaimFromRole(System.Security.Claims.Claim claim, IdentityRole identityRole)
         {
             return await _roleManager.RemoveClaimAsync(identityRole, claim);
         }
-
+        public async Task<IdentityResult> Post(IdentityRole t)
+        {
+            return await _roleManager.CreateAsync(t);
+        }
+        public IEnumerable<IdentityRole> Get()
+        {
+            return _roleManager.Roles;
+        }
+        public async Task<IdentityRole> Get(string t)
+        {
+            return await _roleManager.FindByIdAsync(t);
+        }
+        public async Task<IdentityResult> Put(IdentityRole t)
+        {
+            return await _roleManager.UpdateAsync(t);
+        }
+        public async Task<IdentityResult> Delete(IdentityRole t)
+        {
+            return await _roleManager.DeleteAsync(t);
+        }
     }
 }
