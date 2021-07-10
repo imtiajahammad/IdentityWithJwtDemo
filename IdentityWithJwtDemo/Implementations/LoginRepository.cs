@@ -1,31 +1,23 @@
 ﻿using IdentityWithJwtDemo.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace IdentityWithJwtDemo.DomainManagers
+namespace IdentityWithJwtDemo.Implementations
 {
-    public class LoginManager
+    public class LoginRepository
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IConfiguration _configuration;
-        public LoginManager(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public LoginRepository(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             this._userManager = userManager;
             this._roleManager = roleManager;
-            this._configuration = configuration;
         }
-
-        public async Task<JwtSecurityToken> Login( LoginViewModel model)
+        public async Task<JwtSecurityToken> Login(LoginViewModel model)
         {
             var user = await _userManager.FindByNameAsync(model.UserName);
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
@@ -51,18 +43,18 @@ namespace IdentityWithJwtDemo.DomainManagers
 
 
                 return token;
-               /*return new StatusResult<dynamic>()
-                {
-                    Status = ResponseStatus.Success,
-                    Message = "dONE",
-                    Result = new
-                    {
-                        token = new JwtSecurityTokenHandler().WriteToken(token),
-                        expiration = token.ValidTo,
-                        user = user.UserName,
-                        claims = authClaims
-                    }
-                };*/
+                /*return new StatusResult<dynamic>()
+                 {
+                     Status = ResponseStatus.Success,
+                     Message = "dONE",
+                     Result = new
+                     {
+                         token = new JwtSecurityTokenHandler().WriteToken(token),
+                         expiration = token.ValidTo,
+                         user = user.UserName,
+                         claims = authClaims
+                     }
+                 };*/
             }
             /*return new StatusResult<Object>()
             {
@@ -71,9 +63,5 @@ namespace IdentityWithJwtDemo.DomainManagers
             };*/
             return null;
         }
-
-
-
-
     }
 }
