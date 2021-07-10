@@ -155,5 +155,14 @@ namespace IdentityWithJwtDemo.DomainManagers
         }
         #endregion claims
 
+
+        public async Task<IdentityResult> ResetPasswordForUser(ApplicationUser user,string token,string newPassword)
+        {
+            var result = await _userManager.ResetPasswordAsync(user,token,newPassword);
+            return result;
+        }
+
+        
+
     }
 }
