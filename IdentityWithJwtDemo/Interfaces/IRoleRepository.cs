@@ -10,23 +10,6 @@ namespace IdentityWithJwtDemo.Interfaces
 {
     public interface IRoleRepository : IGenericRepository<IdentityRole>
     {
-        /*public  T RoleExistsAsync(T roleName);
-
-        public  T CreateRole(T user, T identityRole);
-
-        public T GetRoles();
-
-        public  T GetRoleById(T id);
-
-        public  T UpdateRole(T identityRole);
-
-        public  T DeleteRoleById(T identityRole);
-
-        public  T GetClaimsByRole(T identityRole);
-
-        public  T AddClaimToRole(T claim, T role);
-
-        public  T RemoveClaimFromRole(T claim, T identityRole);*/
         public Task<bool> RoleExistsAsync(string roleName);
 
         public Task<IdentityResult> CreateRole(ApplicationUser user, IdentityRole identityRole);
