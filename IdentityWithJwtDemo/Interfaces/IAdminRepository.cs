@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace IdentityWithJwtDemo.Interfaces
 {
-    public interface IAdminRepository : IGenericRepository<ApplicationUser>
+    public interface IAdminRepository //: IGenericRepository<ApplicationUser>
     {
-        
+        public Task<StatusResult<string>> RegisterAdmin(RegisterViewModel model);
     }
 }

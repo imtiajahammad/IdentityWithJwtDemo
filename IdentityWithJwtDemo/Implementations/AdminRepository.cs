@@ -1,23 +1,21 @@
 ﻿using IdentityWithJwtDemo.Authentication;
+using IdentityWithJwtDemo.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IdentityWithJwtDemo.DomainManagers
+namespace IdentityWithJwtDemo.Implementations
 {
-    public class AdminManager
+    public class AdminRepository:IAdminRepository
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager2<IdentityRole> _roleManager;
-        private readonly IConfiguration _configuration;
-        public AdminManager(UserManager<ApplicationUser> userManager, RoleManager2<IdentityRole> roleManager, IConfiguration configuration)
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public AdminRepository(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             this._userManager = userManager;
             this._roleManager = roleManager;
-            this._configuration = configuration;
         }
 
         public async Task<StatusResult<string>> RegisterAdmin(RegisterViewModel model)
