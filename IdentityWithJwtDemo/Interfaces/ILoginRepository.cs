@@ -9,6 +9,6 @@ namespace IdentityWithJwtDemo.Interfaces
 {
     public interface ILoginRepository//: IGenericRepository<ApplicationUser>
     {
-        public async Task<JwtSecurityToken> Login(LoginViewModel model);
+        public Task<JwtSecurityToken> Login(LoginViewModel model);
     }
 }

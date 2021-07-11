@@ -1,9 +1,13 @@
 ﻿using IdentityWithJwtDemo.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace IdentityWithJwtDemo.Implementations
@@ -12,10 +16,12 @@ namespace IdentityWithJwtDemo.Implementations
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public LoginRepository(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        private readonly IConfiguration _configuration;
+        public LoginRepository(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             this._userManager = userManager;
             this._roleManager = roleManager;
+            this._configuration = configuration;
         }
         public async Task<JwtSecurityToken> Login(LoginViewModel model)
         {

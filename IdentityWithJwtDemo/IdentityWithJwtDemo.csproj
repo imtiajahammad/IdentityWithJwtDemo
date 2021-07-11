@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Folder Include="DomainGateways\" />
+    <Folder Include="Implementations\" />
   </ItemGroup>
 
 
