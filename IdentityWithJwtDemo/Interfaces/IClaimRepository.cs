@@ -23,6 +23,8 @@ namespace IdentityWithJwtDemo.Interfaces
         public Task<IdentityResult> RemoveClaimFromUser(ApplicationUser applicationUser, System.Security.Claims.Claim claim);
 
         public Task<IdentityResult> RemoveUserFromRoleId(ApplicationUser applicationUser, string oldPassword, string newPassword);
+        
+        public Task<IEnumerable<Claim>> GetClaimsAsync(ApplicationUser applicationUser);
 
     }
 }

@@ -51,6 +51,25 @@ namespace IdentityWithJwtDemo.DomainRepositories
         {
             return await _userManager.ChangePasswordAsync(applicationUser, oldPassword, newPassword);
         }
+        public async Task<IEnumerable<Claim>> GetClaimsAsync(ApplicationUser applicationUser)
+        {
+            return await _userManager.GetClaimsAsync(applicationUser);
+        }
         #endregion _userManager
+
+
+        public IEnumerable<Claim> GetAll()
+        {
+            List<Claim> claimsList = new List<Claim>()
+            {
+                new Claim("SADMIN", "true"),
+                new Claim("HADMIN", "true"),
+                new Claim("CADMIN", "true"),
+            };
+            return claimsList;
+        }
+
+
+
     }
 }
