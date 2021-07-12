@@ -11,21 +11,13 @@ namespace IdentityWithJwtDemo.Interfaces
     public interface IRoleRepository : IGenericRepository<IdentityRole>
     {
         public Task<bool> RoleExistsAsync(string roleName);
-
-        public Task<IdentityResult> CreateRole(ApplicationUser user, IdentityRole identityRole);
-
-        public IEnumerable<IdentityRole> GetRoles();
-
         public Task<IdentityRole> GetRoleById(string id);
-
-        public Task<IdentityResult> UpdateRole(IdentityRole identityRole);
-
-        public Task<IdentityResult> DeleteRoleById(IdentityRole identityRole);
-
-        public Task<IEnumerable<Claim>> GetClaimsByRole(IdentityRole identityRole);
-
         public Task<IdentityResult> AddClaimToRole(System.Security.Claims.Claim claim, IdentityRole role);
-
         public Task<IdentityResult> RemoveClaimFromRole(System.Security.Claims.Claim claim, IdentityRole identityRole);
+        public Task<IEnumerable<Claim>> GetClaimsByRole(IdentityRole identityRole);
+        public Task<IdentityResult> CreateRole(IdentityRole identityRole);
+        public Task<IdentityResult> DeleteRoleById(IdentityRole identityRole);
+        public Task<IdentityResult> UpdateRole(IdentityRole identityRole);
+        public IEnumerable<IdentityRole> GetRoles();
     }
 }

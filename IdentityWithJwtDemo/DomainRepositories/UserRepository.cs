@@ -115,13 +115,13 @@ namespace IdentityWithJwtDemo.Implementations
         {
             return await _userManager.RemoveClaimAsync(applicationUser, claim);
         }
-        public async Task<IdentityResult> RemoveUserFromRoleId(ApplicationUser applicationUser, string oldPassword, string newPassword)
+
+        #endregion claims
+
+        public async Task<IdentityResult> ChangePassword(ApplicationUser applicationUser, string oldPassword, string newPassword)
         {
             return await _userManager.ChangePasswordAsync(applicationUser, oldPassword, newPassword);
         }
-        #endregion claims
-
-
         public async Task<IdentityResult> ResetPasswordForUser(ApplicationUser user, string token, string newPassword)
         {
             var result = await _userManager.ResetPasswordAsync(user, token, newPassword);

@@ -27,16 +27,12 @@ namespace IdentityWithJwtDemo.Interfaces
 
         #region claims
         public Task<IEnumerable<System.Security.Claims.Claim>> GetClaimsByUser(ApplicationUser applicationUser);
-
         public Task<IdentityResult> AddClaimToUser(ApplicationUser applicationUser, System.Security.Claims.Claim claim);
-
         public Task<IdentityResult> RemoveClaimFromUser(ApplicationUser applicationUser, System.Security.Claims.Claim claim);
-
-        public Task<IdentityResult> RemoveUserFromRoleId(ApplicationUser applicationUser, string oldPassword, string newPassword);
 
         #endregion claims
 
-
+        public Task<IdentityResult> ChangePassword(ApplicationUser applicationUser, string oldPassword, string newPassword);
         public Task<IdentityResult> ResetPasswordForUser(ApplicationUser user, string token, string newPassword);
         
     }

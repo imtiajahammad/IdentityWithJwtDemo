@@ -21,7 +21,7 @@ namespace IdentityWithJwtDemo.Implementations
         {
             return await _roleManager.RoleExistsAsync(roleName);
         }
-        public async Task<IdentityResult> CreateRole(ApplicationUser user, IdentityRole identityRole)
+        public async Task<IdentityResult> CreateRole(IdentityRole identityRole)
         {
             return await _roleManager.CreateAsync(identityRole);
         }
