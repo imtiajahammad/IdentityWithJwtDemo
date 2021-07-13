@@ -1,4 +1,7 @@
 using IdentityWithJwtDemo.Authentication;
+using IdentityWithJwtDemo.DomainRepositories;
+using IdentityWithJwtDemo.Implementations;
+using IdentityWithJwtDemo.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -105,6 +108,19 @@ namespace IdentityWithJwtDemo
                 options.Password.RequireUppercase = false;
                 options.Password.RequireLowercase = false;
             });
+
+            services.AddScoped<IAdminRepository, AdminRepository>();
+            //services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
+            services.AddScoped<IClaimRepository, ClaimRepository>();
+            services.AddScoped<ILoginRepository,LoginRepository>();
+            //services.AddScoped<IManageRoleRepository, ManageRoleRepository>();
+            services.AddScoped<IPasswordRepository, PasswordRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+
+
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
