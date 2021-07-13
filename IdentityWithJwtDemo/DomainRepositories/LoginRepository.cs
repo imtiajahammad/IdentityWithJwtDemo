@@ -1,4 +1,5 @@
 ﻿using IdentityWithJwtDemo.Authentication;
+using IdentityWithJwtDemo.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace IdentityWithJwtDemo.Implementations
 {
-    public class LoginRepository
+    public class LoginRepository:ILoginRepository
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
