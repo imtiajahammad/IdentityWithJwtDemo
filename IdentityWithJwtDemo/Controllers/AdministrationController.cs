@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityWithJwtDemo.Authentication;
+using IdentityWithJwtDemo.Implementations;
+using IdentityWithJwtDemo.Interfaces;
 using IdentityWithJwtDemo.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -17,10 +19,12 @@ namespace IdentityWithJwtDemo.Controllers
     {
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        public AdministrationController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
+        private readonly IRoleRepository _roleRepository;
+        public AdministrationController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, IRoleRepository roleRepository)
         {
             _roleManager = roleManager;
             _userManager = userManager;
+            _roleRepository = roleRepository;
         }
         [Route("CreateRole")]
         [HttpPost]
