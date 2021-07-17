@@ -33,6 +33,15 @@ namespace IdentityWithJwtDemo.Controllers
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
+            var ex = HttpContext.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+            //_logger.LogError($"The path {ex.Path} threw an exception"+ $"{ex.Error}");
+            _logger. LogError("The path pathdirectory threw an exception errorerror" );
+            _logger.LogTrace("trace log");
+            _logger.LogDebug("Debug log");
+            _logger.LogInformation("Information log");
+            _logger.LogWarning("Warning log");
+            _logger.LogError("error log");
+            _logger.LogCritical("Critical log");
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
